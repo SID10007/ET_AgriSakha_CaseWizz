@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capture Image</title>
+</head>
+<body>
+    <h2>Capture Image Using Webcam</h2>
+    <video id="video" width="640" height="480" autoplay></video>
+    <button id="capture">Capture</button>
+    
+    <!-- Canvas to store captured image data -->
+    <canvas id="canvas" style="display: none;"></canvas>
+
+    <h2>Extracted Information:</h2>
+    <div id="extracted_data">
+        <!-- Extracted data will be displayed here -->
+    </div>
+    
+    <script>
+        const video = document.getElementById('video');
+        const captureButton = document.getElementById('capture');
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+        
+        // Access the webcam
+        const constraints = {
+            video: { width: 360, height: 360 }
+        };
+
+        navigator.mediaDevices.getUserMedia(constraints)
+            .then(stream => {
+                video.srcObject = stream;
+            })
+            .catch(err => console.log(err));
+
+        captureButton.onclick = () => {
+            // Set canvas size to match the video feed
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            // Draw the current frame from the video onto the canvas
+            context.drawImage(video, 0, 0);
+
+            // Convert the canvas image to base64
+            const imageData = canvas.toDataURL('image/jpeg');
+
+            // Send the captured image to the Flask server
+            fetch('/capture', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ image: imageData })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    // Display the extracted data
+                    let extractedHTML = `
+                        <p>First Name: ${data.extracted_data.first_name}</p>
+                        <p>Middle Name: ${data.extracted_data.middle_name}</p>
+                        <p>Last Name: ${data.extracted_data.last_name}</p>
+                        <p>Address: ${data.extracted_data.address}</p>
+                        <p>Aadhaar Number: ${data.extracted_data.aadhaar_no}</p>
+                        <p>Date of Birth: ${data.extracted_data.dob}</p>
+                        <p>Gender: ${data.extracted_data.gender}</p>
+                        <p>PAN Card Number: ${data.extracted_data.pan_card_no}</p>
+                    `;
+                    document.getElementById('extracted_data').innerHTML = extractedHTML;
+                } else {
+                    console.log("Error:", data);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        };
+    </script>
+</body>
+</html>

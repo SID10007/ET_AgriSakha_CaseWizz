@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Loan Query Assistant</title>
+    <style>
+      /* Global Styles */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Inter", sans-serif;
+      }
+
+      body {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        background-color: #0f172a;
+        color: #e2e8f0;
+      }
+
+      /* Header */
+      .header {
+        width: 100%;
+        background: #1e293b;
+        padding: 15px;
+        text-align: center;
+        font-size: 1.5rem;
+        font-weight: bold;
+        border-bottom: 2px solid #334155;
+      }
+
+      /* Layout */
+      .main-container {
+        display: flex;
+        flex: 1;
+      }
+
+      /* Sidebar */
+      .sidebar {
+        width: 220px;
+        background: #1e293b;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        border-right: 2px solid #334155;
+      }
+
+      .sidebar a {
+        text-decoration: none;
+        color: #e2e8f0;
+        font-size: 1.1rem;
+        padding: 10px;
+        border-radius: 6px;
+        transition: 0.3s;
+      }
+
+      .sidebar a:hover {
+        background: #334155;
+      }
+
+      /* Content Area */
+      .content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+      }
+
+      .container {
+        width: 90%;
+        max-width: 600px;
+        background: #1e293b;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      }
+
+      select,
+      button {
+        padding: 12px;
+        margin: 10px;
+        font-size: 16px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+
+      select {
+        background: #1e293b;
+        color: white;
+      }
+
+      button {
+        background: linear-gradient(45deg, #6366f1, #9333ea);
+        color: white;
+        transition: all 0.3s ease-in-out;
+      }
+
+      button:hover {
+        background: linear-gradient(45deg, #4f46e5, #7e22ce);
+      }
+
+      #yesNoSection {
+        display: none;
+        margin-top: 20px;
+        text-align: center;
+        padding: 15px;
+        border-radius: 8px;
+        background: #1e293b;
+        border: 2px solid #334155;
+      }
+
+      #chatHistory {
+        margin-top: 20px;
+        width: 100%;
+        background: #1e293b;
+        padding: 15px;
+        border-radius: 8px;
+        border: 2px solid #334155;
+      }
+
+      /* Footer */
+      .footer {
+        width: 100%;
+        background: #1e293b;
+        text-align: center;
+        padding: 10px;
+        font-size: 14px;
+        border-top: 2px solid #334155;
+      }
+      .custom-select {
+        width: 250px;
+        padding: 12px;
+        font-size: 16px;
+        background: #1e293b;
+        color: white;
+        border: 2px solid #334155;
+        border-radius: 8px;
+        outline: none;
+        cursor: pointer;
+        transition: 0.3s;
+        appearance: none; /* Removes default dropdown arrow */
+        position: relative;
+      }
+
+      .custom-select:hover {
+        border-color: #6366f1;
+      }
+
+      .custom-select:focus {
+        border-color: #9333ea;
+        box-shadow: 0 0 8px rgba(99, 102, 241, 0.6);
+      }
+    </style>
+    <script>
+      let mediaRecorder;
+      let audioChunks = [];
+      let bankName = "";
+      let currentAudio = null; // Store the playing audio
+
+      function selectBank(value) {
+        bankName = value;
+        document.getElementById("phone_number").innerText =
+          "Bank Contact: " + value;
+      }
+
+      function startRecording() {
+        navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+          mediaRecorder = new MediaRecorder(stream);
+          mediaRecorder.start();
+          audioChunks = [];
+
+          mediaRecorder.addEventListener("dataavailable", (event) => {
+            audioChunks.push(event.data);
+          });
+
+          mediaRecorder.addEventListener("stop", () => {
+            const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+            sendAudio(audioBlob);
+          });
+
+          document.getElementById("recordButton").innerText = "Stop Recording";
+          document.getElementById("recordButton").onclick = stopRecording;
+        });
+      }
+
+      function stopRecording() {
+        mediaRecorder.stop();
+        document.getElementById("recordButton").innerText = "Start Recording";
+        document.getElementById("recordButton").onclick = startRecording;
+      }
+
+      function sendAudio(audioBlob) {
+        const formData = new FormData();
+        formData.append("audio_file", audioBlob, "query_audio.webm");
+
+        fetch("/submit_audio", { method: "POST", body: formData })
+          .then((response) => response.json())
+          .then((data) => {
+            document.getElementById("transcription").innerText =
+              data.transcription;
+            sendQuery(data.transcription);
+          });
+      }
+
+      function sendQuery(transcription) {
+        const formData = new FormData();
+        formData.append("transcription", transcription);
+        formData.append("bank_name", bankName);
+
+        fetch("/process_query", { method: "POST", body: formData })
+          .then((response) => response.json())
+          .then((data) => {
+            document.getElementById("response").innerText = data.response;
+            document.getElementById("phone_number").innerText =
+              "Bank Contact: " + data.phone_number;
+
+            // Update play button to play audio
+            document.getElementById("playButton").onclick = () =>
+              playResponseAudio(data.audio_url);
+            document.getElementById("stopButton").style.display = "none"; // Hide stop button initially
+
+            if (data.chat_history && data.chat_history.length > 0) {
+              document.getElementById("chatHistory").innerHTML =
+                data.chat_history
+                  .map(
+                    (chat) =>
+                      `<p><strong>You:</strong> ${chat.user || "User"}</p>
+                         <p><strong>Assistant:</strong> ${
+                           chat.assistant || "Assistant"
+                         }</p>`
+                  )
+                  .join("");
+            }
+            // Show Yes/No question after response
+            document.getElementById("yesNoSection").style.display = "block";
+          });
+      }
+
+      function playResponseAudio(audioUrl) {
+        if (currentAudio) {
+          currentAudio.pause();
+          currentAudio.currentTime = 0;
+        }
+
+        currentAudio = new Audio(audioUrl);
+        currentAudio.play();
+
+        document.getElementById("stopButton").style.display = "inline-block";
+        currentAudio.onended = () => {
+          document.getElementById("stopButton").style.display = "none";
+        };
+      }
+
+      function stopResponseAudio() {
+        if (currentAudio) {
+          currentAudio.pause();
+          currentAudio.currentTime = 0;
+          document.getElementById("stopButton").style.display = "none";
+        }
+      }
+
+      async function handleChoice(choice) {
+        const formData = new FormData();
+        formData.append("choice", choice);
+
+        // ✅ Wait for chatHistory before proceeding
+        const response = await fetch("/handle_choice", {
+          method: "POST",
+          body: formData,
+        });
+        const data = await response.json();
+
+        document.getElementById("message").innerText = data.message;
+        const chatHistory = data.chat_history; // ✅ chatHistory is now correctly assigned
+
+        if (choice === "No") {
+          document.getElementById("chatHistory").innerHTML = ""; // Reset chat history display
+        }
+
+        // ✅ Now send the chatHistory to WhatsApp API
+        const whatsapp = await fetch("http://localhost:5005/send-message", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" }, // 🔥 Ensure this is set
+          body: JSON.stringify({
+            choice: bankName,
+            chatHistory
+          }),
+        });
+
+        const wpRes = await whatsapp.json();
+        wpRes.success ? console.log(wpRes.message) : console.log(wpRes.details);
+      }
+    </script>
+  </head>
+  <body>
+    <div class="header">💰 Loan Query Assistant</div>
+
+    <div class="main-container">
+      <div class="sidebar">
+        <a href="#">🏠 Home</a>
+        <a href="#">📄 Documentation</a>
+        <a href="#">⚙️ Settings</a>
+        <a href="#">❓ Help</a>
+      </div>
+
+      <div class="content">
+        <div class="container">
+          <h2>Select Your Bank</h2>
+          <select onchange="selectBank(this.value)" class="custom-select">
+            <option>Select a bank</option>
+            <option>TVS Bank</option>
+            <option>Bank of Baroda</option>
+            <option>Punjab National Bank</option>
+          </select>
+          <p id="phone_number">Bank Contact:</p>
+
+          <button id="recordButton" onclick="startRecording()">
+            🎤 Start Recording
+          </button>
+          <p id="transcription"></p>
+          <p id="response"></p>
+
+          <button id="playButton">🔊 Play Response</button>
+          <button
+            id="stopButton"
+            style="display: none"
+            onclick="stopResponseAudio()"
+          >
+            ⏹ Stop Playback
+          </button>
+
+          <div id="yesNoSection">
+            <p>
+              <strong>Do you want to know more about this loan process?</strong>
+            </p>
+            <button onclick="handleChoice('Yes')">Yes</button>
+            <button onclick="handleChoice('No')">No</button>
+          </div>
+
+          <p id="message"></p>
+          <h2>Chat History</h2>
+          <div id="chatHistory"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">© 2025 Loan Query Assistant. All Rights Reserved.</div>
+  </body>
+</html>

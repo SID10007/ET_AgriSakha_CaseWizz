@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense & Earnings Tracker</title>
+
+    <script>
+        let mediaRecorder;
+        let audioChunks = [];
+        let isRecording = false;
+
+        async function toggleRecording(action) {
+            if (!isRecording) {
+                startRecording(action);
+            } else {
+                stopRecording(action);
+            }
+        }
+
+        async function startRecording(action) {
+            isRecording = true;
+            document.getElementById(action + "Mic").innerText = "🎤 Recording... Click to Stop";
+
+            let stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+
+            mediaRecorder.ondataavailable = event => {
+                audioChunks.push(event.data);
+            };
+
+            mediaRecorder.onstop = () => {
+                let audioBlob = new Blob(audioChunks, { type: "audio/wav" });
+                sendAudioToServer(audioBlob, action);
+                audioChunks = [];
+            };
+
+            mediaRecorder.start();
+        }
+
+        function stopRecording(action) {
+            isRecording = false;
+            document.getElementById(action + "Mic").innerText = "🎤 Start Recording";
+            mediaRecorder.stop();
+        }
+
+        function sendAudioToServer(audioBlob, action) {
+            let formData = new FormData();
+            formData.append("audio", audioBlob, "voice_input.wav");
+
+            let endpoint;
+            if (action === "input") {
+                endpoint = "/upload_audio";
+            } else if (action === "budget") {
+                endpoint = "/get_budget_advice";
+            } else {
+                endpoint = "/search_chat?type=" + action;
+            }
+
+            fetch(endpoint, {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (action === "input") {
+                    document.getElementById("message").innerText = data.message;
+                    document.getElementById("expensePie").src = "data:image/png;base64," + data.expense_pie;
+                    document.getElementById("expenseBar").src = "data:image/png;base64," + data.expense_bar;
+                    document.getElementById("earningPie").src = "data:image/png;base64," + data.earning_pie;
+                    document.getElementById("earningBar").src = "data:image/png;base64," + data.earning_bar;
+                    document.getElementById("totalExpenditure").innerText = "Total Expenditure: ₹" + data.total_expenditure;
+                    document.getElementById("totalEarnings").innerText = "Total Earnings: ₹" + data.total_earnings;
+                    updateChatHistory("expenseHistory", data.chat_history_expenses);
+                    updateChatHistory("earningHistory", data.chat_history_earnings);
+                } else if (action === "budget") {
+                    document.getElementById("budgetQuery").innerText = "Your Query: " + data.query;
+                    document.getElementById("budgetAdvice").innerText = "AI Advice: " + data.advice;
+                } else {
+                    let searchResults = document.getElementById(action + "SearchResults");
+                    searchResults.innerHTML = "";
+                    data.results.forEach(result => {
+                        let li = document.createElement("li");
+                        li.textContent = result;
+                        searchResults.appendChild(li);
+                    });
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+
+        function updateChatHistory(elementId, history) {
+            let chatBox = document.getElementById(elementId);
+            chatBox.innerHTML = "";
+            history.forEach(item => {
+                let li = document.createElement("li");
+                li.textContent = item;
+                chatBox.appendChild(li);
+            });
+        }
+    </script>
+
+<style>
+    /* Global Styles */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Inter', sans-serif;
+    }
+
+    body {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        background-color: #0f172a;
+        color: #e2e8f0;
+    }
+
+    /* Header */
+    .header {
+        width: 100%;
+        background: #1e293b;
+        padding: 15px;
+        text-align: center;
+        font-size: 1.5rem;
+        font-weight: bold;
+        border-bottom: 2px solid #334155;
+    }
+
+    /* Layout */
+    .main-container {
+        display: flex;
+        flex: 1;
+    }
+
+    /* Sidebar */
+    .sidebar {
+        width: 220px;
+        background: #1e293b;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        border-right: 2px solid #334155;
+    }
+
+    .sidebar a {
+        text-decoration: none;
+        color: #e2e8f0;
+        font-size: 1.1rem;
+        padding: 10px;
+        border-radius: 6px;
+        transition: 0.3s;
+    }
+
+    .sidebar a:hover {
+        background: #334155;
+    }
+
+    /* Content Area */
+    .content {
+        flex: 1;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .container {
+        width: 90%;
+        max-width: 700px;
+        background: #1e293b;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    h1, h2, h3 {
+        text-align: center;
+        color: #f8fafc;
+        margin-bottom: 15px;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+    }
+
+    button {
+        padding: 12px;
+        background: linear-gradient(45deg, #6366f1, #9333ea);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: all 0.3s ease-in-out;
+    }
+
+    button:hover {
+        background: linear-gradient(45deg, #4f46e5, #7e22ce);
+    }
+
+    .record-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .charts {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    img {
+        width: 45%;
+        max-width: 300px;
+        border-radius: 8px;
+        border: 2px solid #334155;
+    }
+
+    .advice-container {
+        border: 2px solid #334155;
+        padding: 15px;
+        margin-top: 20px;
+        border-radius: 8px;
+        background: #0f172a;
+        text-align: center;
+    }
+
+    .history-section {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    li {
+        background: #1e293b;
+        margin: 5px 0;
+        padding: 10px;
+        border-radius: 6px;
+        border: 1px solid #334155;
+        color: #e2e8f0;
+    }
+
+    /* Footer */
+    .footer {
+        width: 100%;
+        background: #1e293b;
+        text-align: center;
+        padding: 10px;
+        font-size: 14px;
+        border-top: 2px solid #334155;
+    }
+</style>
+</head>
+<body>
+
+    <div class="header">📊 Expense & Earnings Tracker</div>
+
+    <div class="main-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <a href="#">🏠 Dashboard</a>
+            <a href="#">📈 Charts</a>
+            <a href="#">📜 History</a>
+            <a href="#">⚙️ Settings</a>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content">
+            <div class="container">
+                <h2>Is there anything I can help you with managing your budgets?</h2>
+                <button id="budgetMic" class="record-btn" onclick="toggleRecording('budget')">🎤 Start Recording</button>
+                <div class="advice-container">
+                    <h3>AI Recommendations:</h3>
+                    <p id="budgetQuery"><i>Ask something about managing your budget...</i></p>
+                    <p id="budgetAdvice"><i>AI-generated financial guidance will appear here.</i></p>
+                </div>
+
+                <h2>Record Your Transaction</h2>
+                <button id="inputMic" class="record-btn" onclick="toggleRecording('input')">🎤 Start Recording</button>
+                <p id="message"></p>
+
+                <h2>Expenses</h2>
+                <div class="charts">
+                    <img id="expensePie" src="data:image/png;base64,{{ expense_pie }}" alt="Expense Pie Chart">
+                    <img id="expenseBar" src="data:image/png;base64,{{ expense_bar }}" alt="Expense Bar Chart">
+                </div>
+                <h3 id="totalExpenditure">Total Expenditure: ₹{{ total_expenditure }}</h3>
+
+                <h2>Earnings</h2>
+                <div class="charts">
+                    <img id="earningPie" src="data:image/png;base64,{{ earning_pie }}" alt="Earnings Pie Chart">
+                    <img id="earningBar" src="data:image/png;base64,{{ earning_bar }}" alt="Earnings Bar Chart">
+                </div>
+                <h3 id="totalEarnings">Total Earnings: ₹{{ total_earnings }}</h3>
+
+                <div class="history-section">
+                    <div>
+                        <h3>Expense Chat History</h3>
+                        <button id="expenseMic" class="record-btn" onclick="toggleRecording('expense')">🎤 Start Recording</button>
+                        <ul id="expenseHistory">
+                            {% for entry in chat_history_expenses %}
+                                <li>{{ entry }}</li>
+                            {% endfor %}
+                        </ul>
+                        <ul id="expenseSearchResults"></ul>
+                    </div>
+
+                    <div>
+                        <h3>Earnings Chat History</h3>
+                        <button id="earningMic" class="record-btn" onclick="toggleRecording('earning')">🎤 Start Recording</button>
+                        <ul id="earningHistory">
+                            {% for entry in chat_history_earnings %}
+                                <li>{{ entry }}</li>
+                            {% endfor %}
+                        </ul>
+                        <ul id="earningSearchResults"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">© 2025 Expense & Earnings Tracker. All Rights Reserved.</div>
+
+
+</body>
+</html>

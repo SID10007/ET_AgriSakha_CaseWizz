@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Micro Investment & Government Scheme Recommendations</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+    
+        body {
+            display: flex;
+            flex-direction: column;
+            background-color: #0f172a;
+            color: #e2e8f0;
+        }
+    
+        /* Header */
+        header {
+            background: #1e293b;
+            padding: 20px;
+            text-align: center;
+            font-size: 24px;
+            color: #f8fafc;
+            font-weight: bold;
+            border-bottom: 2px solid #334155;
+        }
+    
+        /* Container */
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+    
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: #1e293b;
+            padding: 20px;
+            border-right: 2px solid #334155;
+        }
+    
+        .sidebar ul {
+            list-style: none;
+        }
+    
+        .sidebar li {
+            margin-bottom: 15px;
+        }
+    
+        .sidebar a {
+            text-decoration: none;
+            color: white;
+            font-size: 18px;
+            display: block;
+            padding: 10px;
+            border-radius: 6px;
+            transition: 0.3s;
+        }
+    
+        .sidebar a:hover {
+            background: #6366f1;
+        }
+    
+        /* Main Content */
+        main {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+        }
+    
+        .investment-section, .scheme-section {
+            margin-bottom: 30px;
+        }
+    
+        /* Form Styling */
+        .investment-form {
+            display: flex;
+            flex-direction: column;
+            width: 350px;
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #334155;
+            gap: 10px;
+            margin: auto;
+        }
+    
+        label {
+            text-align: left;
+            font-size: 14px;
+        }
+    
+        .custom-select, .custom-input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            background: #1e293b;
+            color: white;
+            border: 2px solid #334155;
+            border-radius: 8px;
+            outline: none;
+            transition: 0.3s;
+        }
+    
+        .custom-select:hover, .custom-input:hover {
+            border-color: #6366f1;
+        }
+    
+        .custom-select:focus, .custom-input:focus {
+            border-color: #9333ea;
+            box-shadow: 0 0 8px rgba(99, 102, 241, 0.6);
+        }
+    
+        /* Buttons */
+        .primary-button, .secondary-button, .record-button, .stop-button {
+            padding: 12px;
+            margin: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+        }
+    
+        .primary-button {
+            background: linear-gradient(45deg, #6366f1, #9333ea);
+            color: white;
+        }
+    
+        .primary-button:hover {
+            background: linear-gradient(45deg, #4f46e5, #7e22ce);
+        }
+    
+        .secondary-button {
+            background: #334155;
+            color: white;
+            border: 2px solid #6366f1;
+        }
+    
+        .secondary-button:hover {
+            background: #1e293b;
+            border-color: #9333ea;
+        }
+    
+        .record-button {
+            background: #16a34a;
+            color: white;
+        }
+    
+        .record-button:hover {
+            background: #15803d;
+        }
+    
+        .stop-button {
+            background: #dc2626;
+            color: white;
+        }
+    
+        .stop-button:hover {
+            background: #b91c1c;
+        }
+    
+        hr {
+            width: 80%;
+            margin: 20px auto;
+            border: 1px solid #334155;
+        }
+    
+        /* Footer */
+        footer {
+            background: #1e293b;
+            text-align: center;
+            padding: 15px;
+            font-size: 14px;
+            border-top: 2px solid #334155;
+        }
+    </style>
+    
+    <script>
+        let mediaRecorder;
+        let audioChunks = [];
+        let schemeRecognition;
+        let schemeVoiceInput = "";
+
+        function startRecording() {
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    mediaRecorder = new MediaRecorder(stream);
+                    mediaRecorder.start();
+                    audioChunks = [];
+
+                    mediaRecorder.addEventListener("dataavailable", event => {
+                        audioChunks.push(event.data);
+                    });
+
+                    mediaRecorder.addEventListener("stop", () => {
+                        let audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+                        sendAudio(audioBlob);
+                    });
+
+                    document.getElementById("recordButton").innerText = "🛑 Stop Recording";
+                    document.getElementById("recordButton").onclick = stopRecording;
+                })
+                .catch(error => console.error("Error accessing microphone:", error));
+        }
+
+        function stopRecording() {
+            if (mediaRecorder) {
+                mediaRecorder.stop();
+                document.getElementById("recordButton").innerText = "🎤 Start Recording";
+                document.getElementById("recordButton").onclick = startRecording;
+            }
+        }
+
+        function sendAudio(audioBlob) {
+            const formData = new FormData();
+            formData.append("audio_file", audioBlob, "query_audio.webm");
+
+            fetch("/submit_audio", { method: "POST", body: formData })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("transcription").innerText = data.transcription;
+                    getInvestmentSuggestions(data.transcription);
+                })
+                .catch(error => console.error("Error:", error));
+        }
+
+        function submitUserInput() {
+            let userInput = {
+                risk_level: document.getElementById("risk").value,
+                income: document.getElementById("income").value,
+                investment_period: document.getElementById("investment_period").value
+            };
+
+            fetch("/get_user_input", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(userInput)
+            })
+            .then(response => response.json())
+            .then(data => console.log("User preferences saved:", data))
+            .catch(error => console.error("Error:", error));
+        }
+
+        function getInvestmentSuggestions(transcription) {
+            let requestData = {
+                risk_level: document.getElementById("risk").value,
+                income: document.getElementById("income").value,
+                investment_period: document.getElementById("investment_period").value,
+                transcription: transcription
+            };
+
+            fetch("/get_investment_recommendation", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                let suggestionList = document.getElementById("suggestions");
+                suggestionList.innerHTML = `<p><strong>Detected Language:</strong> ${data.language}</p>`;
+                suggestionList.innerHTML += `<p><strong>Your Query:</strong> ${data.user_query}</p>`;
+
+                data.investment_suggestions.forEach((item) => {
+                    let li = document.createElement("li");
+                    li.innerHTML = `<strong>${item["Investment Type"]}</strong> 
+                        - Expected Returns: ${item["Expected Returns"]} 
+                        - Min Investment: ${item["Min Investment"]}
+                        - Max Investment: ${item["Max Investment"]} 
+                        - Liquidity: ${item["Liquidity"]}
+                        - Details: ${item["Details"]}
+                        <button onclick="speak('${item["Investment Type"]}: ${item["Details"]}', '${data.language}')">🔊 Play</button>`;
+                    suggestionList.appendChild(li);
+                });
+            })
+            .catch(error => console.error("Error fetching investment suggestions:", error));
+        }
+
+        function startSchemeRecording() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert("Your browser does not support speech recognition. Try using Google Chrome.");
+                return;
+            }
+
+            schemeRecognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            schemeRecognition.lang = "en"; 
+            schemeRecognition.interimResults = false;
+            schemeRecognition.maxAlternatives = 1;
+
+            schemeRecognition.onresult = function(event) {
+                schemeVoiceInput = event.results[0][0].transcript;
+                document.getElementById("schemeQuery").innerText = "You said: " + schemeVoiceInput;
+            };
+
+            schemeRecognition.onerror = function(event) {
+                console.error("Speech Recognition Error:", event.error);
+                alert("Error: " + event.error);
+            };
+
+            schemeRecognition.start();
+            document.getElementById("schemeStatus").innerText = "🎤 Listening...";
+        }
+
+        function stopSchemeRecording() {
+            if (schemeRecognition) {
+                schemeRecognition.stop();
+                document.getElementById("schemeStatus").innerText = "🛑 Stopped.";
+            }
+        }
+
+        function getGovernmentScheme() {
+            fetch("/government_schemes", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ voice_input: schemeVoiceInput })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("schemeResponse").innerHTML = `<p><strong>Response:</strong> ${data.response}</p>`;
+                speakScheme(data.response, data.language);
+            })
+            .catch(error => console.error("Error fetching government schemes:", error));
+        }
+
+        function speak(text, language) {
+            let speech = new SpeechSynthesisUtterance();
+            speech.text = text;
+            speech.lang = language;
+            window.speechSynthesis.speak(speech);
+        }
+
+        function speakScheme(text, language) {
+            let speech = new SpeechSynthesisUtterance();
+            speech.text = text;
+            speech.lang = language;
+            window.speechSynthesis.speak(speech);
+        }
+    </script>
+</head>
+<body>
+    <header>
+        <h1>Investment & Government Schemes</h1>
+    </header>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <ul>
+                <li><a href="#">🏠 Home</a></li>
+                <li><a href="#">📊 Investments</a></li>
+                <li><a href="#">🏛️ Government Schemes</a></li>
+                <li><a href="#">📞 Contact Us</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main>
+            <h2>Micro Investment & Government Scheme Recommendations</h2>
+
+            <section class="investment-section">
+                <h3>Micro Investment Suggestions</h3>
+                <form onsubmit="event.preventDefault(); submitUserInput();" class="investment-form">
+                    <label for="risk">Risk Level:</label>
+                    <select id="risk" class="custom-select">
+                        <option value="level">select risk level</option>
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                    </select>
+
+                    <label for="income">Monthly Income (INR):</label>
+                    <input type="number" id="income" required class="custom-input">
+
+                    <label for="investment_period">Investment Period (years):</label>
+                    <input type="number" id="investment_period" required class="custom-input">
+
+                    <button type="button" id="recordButton" onclick="startRecording()" class="record-button">🎤 Start Recording</button>
+                    <p id="transcription"></p>
+
+                    <button type="submit" class="primary-button">Save Preferences</button>
+                </form>
+
+                <button onclick="getInvestmentSuggestions(document.getElementById('transcription').innerText)" class="secondary-button">
+                    Get Investment Recommendations
+                </button>
+                <ul id="suggestions"></ul>
+            </section>
+
+            <hr>
+
+            <section class="scheme-section">
+                <h3>Government Scheme Recommendations</h3>
+                <button onclick="startSchemeRecording()" class="record-button">🎤 Start Recording</button>
+                <button onclick="stopSchemeRecording()" class="stop-button">🛑 Stop Recording</button>
+                <p id="schemeStatus"></p>
+                <p id="schemeQuery"></p>
+                <button onclick="getGovernmentScheme()" class="secondary-button">Get Scheme Recommendation</button>
+                <div id="schemeResponse"></div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 Investment Guide | All Rights Reserved</p>
+    </footer>
+</body>
+</html>

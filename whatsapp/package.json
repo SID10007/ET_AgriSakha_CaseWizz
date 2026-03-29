@@ -1,0 +1,25 @@
+{
+  "name": "ayushwhatsapp",
+  "version": "1.0.0",
+  "description": "whatsappBot using gemini api",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon eyserver.js"
+  },
+  "author": "Ayush Sikarwal",
+  "license": "ISC",
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "body-parser": "^1.20.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0",
+    "mongoose": "^8.9.2",
+    "nodemon": "^3.1.10",
+    "puppeteer": "^23.11.1",
+    "puppeteer-core": "^23.11.1",
+    "qrcode-terminal": "^0.12.0",
+    "whatsapp-web.js": "^1.26.0"
+  }
+}

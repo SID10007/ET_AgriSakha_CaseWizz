@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCR Document Scanner</title>
+</head>
+<body>
+    <h2>Upload Your Aadhar/PAN Card</h2>
+    <form method="POST" enctype="multipart/form-data">
+        <input type="file" name="file" accept="image/*">
+        <button type="submit">Upload</button>
+    </form>
+
+    <h2>Or Capture Using Webcam</h2>
+    <a href="{{ url_for('capture_image') }}">Capture Image</a>
+
+    <h2>Extracted Data</h2>
+    {% if extracted_data %}
+    <form method="POST" action="{{ url_for('clear_data') }}">
+        <button type="submit">Clear Data</button>
+    </form>
+
+    <form>
+        <label>First Name:</label>
+        <input type="text" name="first_name" value="{{ extracted_data.get('first_name', '') }}"><br>
+
+        <label>Middle Name:</label>
+        <input type="text" name="middle_name" value="{{ extracted_data.get('middle_name', '') }}"><br>
+
+        <label>Last Name:</label>
+        <input type="text" name="last_name" value="{{ extracted_data.get('last_name', '') }}"><br>
+
+        <label>Aadhaar No:</label>
+        <input type="text" name="aadhaar_no" value="{{ extracted_data.get('aadhaar_no', '') }}"><br>
+
+        <label>Date of Birth:</label>
+        <input type="text" name="dob" value="{{ extracted_data.get('dob', '') }}"><br>
+
+        <label>Gender:</label>
+        <input type="text" name="gender" value="{{ extracted_data.get('gender', '') }}"><br>
+
+        <label>Address:</label>
+        <input type="text" name="address" value="{{ extracted_data.get('address', '') }}"><br>
+
+        <label>PAN Card No:</label>
+        <input type="text" name="pan_card_no" value="{{ extracted_data.get('pan_card_no', '') }}"><br>
+    </form>
+    {% endif %}
+</body>
+</html>
