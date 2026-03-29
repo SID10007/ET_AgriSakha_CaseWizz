@@ -6,28 +6,35 @@ AgriSakha is an AI-powered multilingual platform that empowers farmers with pers
 https://drive.google.com/drive/folders/1DczLIUB--G7M3A9KC132PffXMvOKU5Hp?usp=sharing
 
 # Images of Prototype
-![WhatsApp Image 2025-08-18 at 23 09 53_73414274](https://github.com/user-attachments/assets/19c5bdbc-007f-4539-8e8a-b1b3613a6410)
+<img width="1768" height="903" alt="image" src="https://github.com/user-attachments/assets/d7abdd4b-9a8b-4ab0-ae1c-8ad010169140" />
 
-![WhatsApp Image 2025-08-18 at 23 10 02_9b647a3e](https://github.com/user-attachments/assets/f861899a-78af-4810-b571-b4623f5e3dc9)
+<img width="1759" height="846" alt="image" src="https://github.com/user-attachments/assets/0108ff8e-4800-4d0d-a1ff-3d4f140c2b3a" />
 
-![WhatsApp Image 2025-08-18 at 23 10 35_16a4ccea](https://github.com/user-attachments/assets/7107d48b-3698-4237-87be-9c7c7dcd5fe4)
+<img width="1760" height="850" alt="image" src="https://github.com/user-attachments/assets/27fa5471-9aaf-4d31-964b-b53e7a9bb3ad" />
 
-![WhatsApp Image 2025-08-18 at 23 11 27_f5ab8fe0](https://github.com/user-attachments/assets/d285c3c1-1c07-48ea-a14b-ee3902fcbcb2)
+<img width="1761" height="848" alt="image" src="https://github.com/user-attachments/assets/3e853021-9165-4f61-8614-1d5112ffef21" />
 
-![WhatsApp Image 2025-08-18 at 23 11 46_6417e270](https://github.com/user-attachments/assets/1aa65f89-776c-4771-b1f5-0411fbb87a5e)
+<img width="1767" height="852" alt="image" src="https://github.com/user-attachments/assets/9e9782f4-a37e-4ac7-9119-e52d25d3bf1d" />
 
-<img width="2544" height="1317" alt="Screenshot 2025-08-19 at 6 51 49 PM" src="https://github.com/user-attachments/assets/b510dd36-15dd-480e-b0ea-b1f82013e21f" />
+<img width="1762" height="846" alt="image" src="https://github.com/user-attachments/assets/d1ba87c1-8438-4e42-9a7e-bdd20d3cf76e" />
 
-![WhatsApp Image 2025-08-18 at 23 16 04_1335cd34](https://github.com/user-attachments/assets/93c94242-e8af-4088-95a7-1c658134d8c6)
+<img width="1760" height="847" alt="image" src="https://github.com/user-attachments/assets/7d247930-481a-4870-a2bc-88f4d53b9e99" />
 
-![WhatsApp Image 2025-08-18 at 23 16 24_b1ce27db](https://github.com/user-attachments/assets/dfbcf600-460c-4a8c-bad5-e93d4dc19696)
+<img width="1760" height="842" alt="image" src="https://github.com/user-attachments/assets/00fba67d-97f4-4d70-86ce-d6c369657cbe" />
 
-![WhatsApp Image 2025-08-18 at 23 16 46_66f2d63a](https://github.com/user-attachments/assets/7bba1ab5-559f-43f3-be79-891b42464a74)
+<img width="1762" height="846" alt="image" src="https://github.com/user-attachments/assets/d04a4140-8d74-47be-aae6-4ef0c125f403" />
 
-![WhatsApp Image 2025-08-19 at 06 46 02_dd329e26](https://github.com/user-attachments/assets/029cad6a-1ba3-4235-ab49-2661d61566ae)
+<img width="1762" height="844" alt="image" src="https://github.com/user-attachments/assets/f39bad64-0e54-4592-9800-2d22ba4648ff" />
 
-![WhatsApp Image 2025-08-18 at 23 56 11_344cbfc4](https://github.com/user-attachments/assets/7528c90d-734b-4967-af55-ad2e2e15181c)
+<img width="1761" height="849" alt="image" src="https://github.com/user-attachments/assets/475976aa-cf3d-43fc-a8d5-5ccaad984c99" />
 
+<img width="1761" height="844" alt="image" src="https://github.com/user-attachments/assets/4e2ab96d-5d08-4c63-bc8c-7fa76c14e21d" />
+
+<img width="1766" height="844" alt="image" src="https://github.com/user-attachments/assets/ce107983-24a9-470d-8bae-66efb86b26cb" />
+
+<img width="1757" height="846" alt="image" src="https://github.com/user-attachments/assets/886fc0a7-1d54-4b90-aa06-bdee481a2d28" />
+
+<img width="1765" height="858" alt="image" src="https://github.com/user-attachments/assets/3bc89be3-96b5-4926-a8c1-7cb21a731db9" />
 
 ## 🌾 Features
 
