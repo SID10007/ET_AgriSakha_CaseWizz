@@ -51,7 +51,7 @@ https://drive.google.com/drive/folders/1DczLIUB--G7M3A9KC132PffXMvOKU5Hp?usp=sha
 ## 🏗️ Project Structure
 
 ```
-CaseWizz_CO_AgriSakha/
+CaseWizz_ET_AgriSakha/
 ├── backend/                    # Python Flask backend services
 │   ├── main_backend.py        # Main backend server (Port 5000)
 │   ├── yt.py                  # YouTube integration service (Port 7863)
@@ -406,7 +406,7 @@ npm run dev
 
 ## 📄 License
 
-This project is developed as part of the Capital One CaseWizz competition. All rights reserved.
+This project is developed as part of the Economic Times CaseWizz competition. All rights reserved.
 
 ## 👥 Team
 
@@ -416,7 +416,7 @@ This project is developed as part of the Capital One CaseWizz competition. All r
 
 ## 🙏 Acknowledgments
 
-- Capital One for providing the platform and resources
+- Economic Times for providing the platform and resources
 - Google Gemini AI for intelligent response capabilities
 - Groq for fast AI inference
 - LangChain for AI orchestration
